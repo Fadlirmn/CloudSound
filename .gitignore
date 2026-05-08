@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 
 ../Music-Player-Backend/
+.env
+
 
 DESIGNPRD.md
 UpdatedPRD.md
