@@ -5,7 +5,7 @@ import { ENDPOINTS } from '../../api/endpoints';
 import { Loader2 } from 'lucide-react';
 
 export const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
-  const { login, logout, isAuthenticated, token } = useAuthStore();
+  const { login, logout, token } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {

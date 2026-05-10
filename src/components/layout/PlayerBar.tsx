@@ -33,9 +33,8 @@ const PlayerBar = () => {
     setLocalProgress(value);
   };
 
-  const handleSeekCommit = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    setProgress(value);
+  const handleSeekCommit = () => {
+    setProgress(localProgress);
     setIsDragging(false);
   };
 

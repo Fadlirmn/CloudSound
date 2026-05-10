@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { User, Settings, CreditCard, Bell, Shield, LogOut, ChevronRight, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useMusicStore } from '../store/useMusicStore';
-import { Play, Plus, MoreVertical, Heart } from 'lucide-react';
+import { Play, Plus, Heart } from 'lucide-react';
 import type { Track } from '../types';
 
 const Skeleton = () => (
