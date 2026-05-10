@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Music2, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { authService } from '../services/authService';
@@ -12,7 +12,13 @@ const Register = () => {
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const login = useAuthStore(state => state.login);
+  const { login, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

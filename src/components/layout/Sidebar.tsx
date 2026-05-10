@@ -1,19 +1,20 @@
 import { useEffect } from 'react';
-import { Home, Search, Library, PlusSquare, Music2 } from 'lucide-react';
+import { Home, Search, Library, PlusSquare, Music2, User as UserIcon } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useAuthStore } from '../../store/useAuthStore';
 
 const Sidebar = () => {
-  const { playlists, createPlaylist, fetchPlaylists } = usePlayerStore();
+  const { playlists, createPlaylist, fetchPlaylists, fetchLikedTracks } = usePlayerStore();
   const { user, isAuthenticated } = useAuthStore();
   
   useEffect(() => {
     if (isAuthenticated) {
       fetchPlaylists();
+      fetchLikedTracks();
     }
-  }, [isAuthenticated, fetchPlaylists]);
+  }, [isAuthenticated, fetchPlaylists, fetchLikedTracks]);
 
   const handleCreatePlaylist = () => {
     const name = prompt('Enter playlist name:');
@@ -101,7 +102,13 @@ const Sidebar = () => {
             }
           >
             <div className="relative shrink-0">
-              <img src={user.avatar} className="w-9 h-9 rounded-full object-cover ring-2 ring-surface-container" alt={user.name} />
+              {user.avatar ? (
+                <img src={user.avatar} className="w-9 h-9 rounded-full object-cover ring-2 ring-surface-container" alt={user.name} />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-surface-highest flex items-center justify-center ring-2 ring-surface-container">
+                  <UserIcon size={18} className="text-outline" />
+                </div>
+              )}
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success border-2 border-black rounded-full" />
             </div>
             <div className="flex-1 min-w-0">

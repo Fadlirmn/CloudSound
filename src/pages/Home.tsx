@@ -40,7 +40,7 @@ const TrackCard = ({ track, onPlay }: { track: Track; onPlay: (track: Track) => 
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              toggleLike(track.id);
+              toggleLike(track);
             }}
             className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all ${isLiked ? 'bg-primary text-on-primary' : 'bg-black/40 text-white hover:bg-black/60'}`}
           >

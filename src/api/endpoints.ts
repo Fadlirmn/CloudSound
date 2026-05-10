@@ -15,5 +15,8 @@ export const ENDPOINTS = {
   USER: {
     PLAYLISTS: '/me/playlists',
     ADD_TO_PLAYLIST: (playlistId: string) => `/me/playlists/${playlistId}/tracks`,
+    RECENT: '/me/recent',
+    LIKE: '/me/like',
+    LIKED: '/me/liked',
   },
 };

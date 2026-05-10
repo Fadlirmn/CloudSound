@@ -74,7 +74,7 @@ const PlayerBar = () => {
           </div>
         </div>
         <button 
-          onClick={() => toggleLike(currentTrack.id)}
+          onClick={() => toggleLike(currentTrack)}
           className={`transition-colors ml-2 ${isLiked ? 'text-primary' : 'text-outline hover:text-primary'}`}
         >
           <Heart size={18} fill={isLiked ? "currentColor" : "none"} />

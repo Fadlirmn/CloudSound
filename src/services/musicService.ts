@@ -32,15 +32,19 @@ const MOCK_TRACKS: Track[] = [
   }
 ];
 
-const mapTrack = (t: any): Track => ({
-  id: t.external_id || t.id,
-  title: t.title,
-  artist: t.artist_name || t.artist,
-  album: t.album_name || t.album,
-  coverUrl: t.image_url || t.coverUrl,
-  audioUrl: t.audio_url || t.audioUrl,
-  duration: t.duration
-});
+const mapTrack = (t: any): Track => {
+  const title = t.title || 'Unknown Track';
+  return {
+    // Use title as ID (index) so it stays consistent across refreshes
+    id: title,
+    title: title,
+    artist: t.artist_name || t.artist || 'Unknown Artist',
+    album: t.album_name || t.album || 'Unknown Album',
+    coverUrl: t.image_url || t.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&h=400&fit=crop',
+    audioUrl: t.audio_url || t.audioUrl,
+    duration: t.duration || 0
+  };
+};
 
 export const musicService = {
   getHomeData: async (): Promise<{ feed: Track[], recommendations: Track[], mostPlayed: Track[] }> => {
@@ -122,7 +126,8 @@ export const musicService = {
     try {
       // Map back to models.Track format for Go backend
       const backendTrack = {
-        external_id: track.id,
+        // Index by title as requested
+        external_id: track.title,
         title: track.title,
         artist_name: track.artist,
         album_name: track.album || "",
@@ -133,6 +138,53 @@ export const musicService = {
       await client.post(ENDPOINTS.USER.ADD_TO_PLAYLIST(playlistId), backendTrack);
     } catch (error) {
       console.warn('Failed to add track to playlist on server');
+    }
+  },
+  
+  saveRecentlyPlayed: async (track: Track): Promise<void> => {
+    try {
+      const backendTrack = {
+        external_id: track.title,
+        title: track.title,
+        artist_name: track.artist,
+        album_name: track.album || "",
+        duration: track.duration,
+        audio_url: track.audioUrl,
+        image_url: track.coverUrl
+      };
+      await client.post(ENDPOINTS.USER.RECENT, backendTrack);
+    } catch (error) {
+      console.warn('Failed to save recently played');
+    }
+  },
+
+  toggleLike: async (track: Track): Promise<boolean> => {
+    try {
+      const backendTrack = {
+        // Index by title
+        external_id: track.title,
+        title: track.title,
+        artist_name: track.artist,
+        album_name: track.album || "",
+        duration: track.duration,
+        audio_url: track.audioUrl,
+        image_url: track.coverUrl
+      };
+      const response = await client.post(ENDPOINTS.USER.LIKE, backendTrack);
+      return response.data.is_liked;
+    } catch (error) {
+      console.warn('Failed to toggle like');
+      return false;
+    }
+  },
+
+  getLikedTracks: async (): Promise<Track[]> => {
+    try {
+      const response = await client.get(ENDPOINTS.USER.LIKED);
+      return (response.data || []).map(mapTrack);
+    } catch (error) {
+      console.warn('Failed to fetch liked tracks');
+      return [];
     }
   }
 };

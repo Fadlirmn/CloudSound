@@ -15,6 +15,7 @@ interface PlayerState {
   isShuffle: boolean;
   repeatMode: 'none' | 'all' | 'one';
   likedTrackIds: string[];
+  likedTracks: Track[];
   
   // Actions
   setTrack: (track: Track) => void;
@@ -22,13 +23,14 @@ interface PlayerState {
   togglePlay: () => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
-  toggleLike: (trackId: string) => void;
+  toggleLike: (track: Track) => void;
   playNext: () => void;
   playPrevious: () => void;
   setVolume: (volume: number) => void;
   setProgress: (progress: number) => void;
   updateProgress: () => void;
   fetchPlaylists: () => Promise<void>;
+  fetchLikedTracks: () => Promise<void>;
   createPlaylist: (name: string) => void;
   addTrackToPlaylist: (playlistId: string, track: Track) => void;
 }
@@ -45,18 +47,38 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isShuffle: false,
   repeatMode: 'none',
   likedTrackIds: JSON.parse(localStorage.getItem('likedTrackIds') || '[]'),
+  likedTracks: [],
   
   // Actions
-  toggleLike: (trackId: string) => {
-    set(state => {
-      const isLiked = state.likedTrackIds.includes(trackId);
-      const newLikedIds = isLiked 
-        ? state.likedTrackIds.filter(id => id !== trackId)
-        : [...state.likedTrackIds, trackId];
-      
-      localStorage.setItem('likedTrackIds', JSON.stringify(newLikedIds));
-      return { likedTrackIds: newLikedIds };
-    });
+  toggleLike: async (track: Track) => {
+    const isLiked = get().likedTrackIds.includes(track.id);
+    const newLikedIds = isLiked 
+      ? get().likedTrackIds.filter(id => id !== track.id)
+      : [...get().likedTrackIds, track.id];
+    
+    set({ likedTrackIds: newLikedIds });
+    localStorage.setItem('likedTrackIds', JSON.stringify(newLikedIds));
+
+    try {
+      const serverIsLiked = await musicService.toggleLike(track);
+      if (serverIsLiked !== !isLiked) {
+         // Sync if needed
+      }
+    } catch (error) {
+      console.error('Failed to sync like with server');
+    }
+  },
+  fetchLikedTracks: async () => {
+    try {
+      const tracks = await musicService.getLikedTracks();
+      if (tracks) {
+        const ids = tracks.map(t => t.id);
+        set({ likedTracks: tracks, likedTrackIds: ids });
+        localStorage.setItem('likedTrackIds', JSON.stringify(ids));
+      }
+    } catch (error) {
+      console.error('Failed to fetch liked tracks');
+    }
   },
   fetchPlaylists: async () => {
     try {
@@ -66,7 +88,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         id: String(p.id),
         name: p.title || p.name,
         tracks: (p.tracks || []).map((t: any) => ({
-          id: t.external_id || String(t.id),
+          // Use title as ID for consistency
+          id: t.title || t.external_id || String(t.id),
           title: t.title,
           artist: t.artist_name || t.artist,
           album: t.album_name || t.album,
@@ -109,6 +132,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
     set({ currentTrack: track, howl: newHowl, progress: 0 });
     newHowl.play();
+    
+    // Save recently played to server
+    musicService.saveRecentlyPlayed(track);
   },
 
   setQueue: (queue) => set({ queue }),

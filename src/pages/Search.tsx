@@ -35,7 +35,7 @@ const TrackListItem = ({ track, onPlay }: { track: Track; onPlay: () => void }) 
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              toggleLike(track.id);
+              toggleLike(track);
             }}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${isLiked ? 'text-primary' : 'text-outline hover:text-on-surface hover:bg-surface-highest opacity-0 group-hover:opacity-100'}`}
           >

@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthInitializer } from './components/auth/AuthInitializer';
 
 const queryClient = new QueryClient();
 
@@ -17,21 +18,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="search" element={<Search />} />
-              <Route path="library" element={<Library />} />
-              <Route path="now-playing" element={<NowPlaying />} />
-              <Route path="playlist/:id" element={<PlaylistDetail />} />
-              <Route path="profile" element={<Profile />} />
+        <AuthInitializer>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="search" element={<Search />} />
+                <Route path="library" element={<Library />} />
+                <Route path="now-playing" element={<NowPlaying />} />
+                <Route path="playlist/:id" element={<PlaylistDetail />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </AuthInitializer>
       </BrowserRouter>
     </QueryClientProvider>
   );
