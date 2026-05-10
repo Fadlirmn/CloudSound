@@ -169,7 +169,7 @@ const Home = () => {
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-          {(recommendations?.length > 0 ? recommendations : mostPlayed.length > 0 ? mostPlayed : feed).map((track) => (
+          {recommendations.map((track) => (
             <TrackCard key={track.id} track={track} onPlay={(t) => handlePlayTrack(t, recommendations)} />
           ))}
         </div>

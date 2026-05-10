@@ -24,8 +24,6 @@ export const AuthInitializer = ({ children }: { children: React.ReactNode }) => 
           if (error.response?.status === 401) {
             logout();
           }
-          // If it's a network error, we might want to keep the local state 
-          // but here we just let it be.
         }
       }
       setIsInitializing(false);

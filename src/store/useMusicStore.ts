@@ -24,14 +24,14 @@ export const useMusicStore = create<MusicState>((set) => ({
   fetchHomeData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [feedRes, recsRes, mostRes] = await Promise.all([
+      const results = await Promise.allSettled([
         client.get(ENDPOINTS.MUSIC.FEED),
         client.get(ENDPOINTS.MUSIC.RECOMMENDATIONS),
         client.get(ENDPOINTS.MUSIC.MOST_PLAYED)
       ]);
 
       const mapTracks = (tracks: any[]) => (tracks || []).map((t: any) => ({
-        id: t.external_id || t.id,
+        id: t.title || t.external_id || t.id,
         title: t.title,
         artist: t.artist_name || t.artist,
         album: t.album_name || t.album,
@@ -40,15 +40,23 @@ export const useMusicStore = create<MusicState>((set) => ({
         duration: t.duration
       }));
 
+      const feed = results[0].status === 'fulfilled' ? mapTracks(results[0].value.data) : [];
+      const recommendations = results[1].status === 'fulfilled' ? mapTracks(results[1].value.data) : [];
+      const mostPlayed = results[2].status === 'fulfilled' ? mapTracks(results[2].value.data) : [];
+
       set({ 
-        feed: mapTracks(feedRes.data), 
-        recommendations: mapTracks(recsRes.data), 
-        mostPlayed: mapTracks(mostRes.data),
+        feed, 
+        recommendations,
+        mostPlayed,
         isLoading: false 
       });
+      
+      if (results.every(r => r.status === 'rejected')) {
+        throw new Error('All data fetches failed');
+      }
     } catch (err: any) {
       set({ 
-        error: err.response?.data?.message || 'Failed to fetch home data', 
+        error: err.message || 'Failed to fetch home data', 
         isLoading: false 
       });
       console.error('Error fetching home data:', err);
